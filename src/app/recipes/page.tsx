@@ -2,20 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '@/contexts/CartContext';
+import CartButton from '@/components/CartButton';
+import type { Recipe } from '@/contexts/CartContext';
 
-// Types for our recipes
-interface Recipe {
-  title: string;
-  description: string;
-  prep_time: string;
-  cook_time: string;
-  servings: number;
-  difficulty: string;
-  protein_type: string;
-  ingredients: string;
-  instructions: string;
-  tags: string;
-}
+// Recipe type is imported from CartContext
 
 // Icons
 const SearchIcon = () => (
@@ -61,6 +52,8 @@ export default function RecipesPage() {
   const [selectedProtein, setSelectedProtein] = useState('All');
   const [loading, setLoading] = useState(true);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  
+  const { addToCart, isItemInCart } = useCart();
 
   const proteinTypes = ['All', 'Chicken', 'Beef', 'Pork', 'Fish', 'Vegetarian', 'Vegan'];
 
@@ -209,7 +202,6 @@ export default function RecipesPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Search */}
             <div className="relative flex-1 md:max-w-md">
-              <SearchIcon />
               <input
                 type="text"
                 placeholder="Search recipes..."
@@ -308,13 +300,19 @@ export default function RecipesPage() {
 
       {/* Recipe Modal */}
       {selectedRecipe && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedRecipe(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
               <h2 className="text-2xl font-bold text-slate-900">{selectedRecipe.title}</h2>
               <button
                 onClick={() => setSelectedRecipe(null)}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-700 hover:text-slate-900"
               >
                 <XMarkIcon />
               </button>
@@ -358,9 +356,31 @@ export default function RecipesPage() {
                       </span>
                     </div>
 
-                    <button className="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                      <PlusIcon />
-                      <span>Add to My Week</span>
+                    <button 
+                      onClick={() => {
+                        addToCart(selectedRecipe);
+                        setSelectedRecipe(null); // Close modal after adding
+                      }}
+                      disabled={isItemInCart(selectedRecipe.title)}
+                      className={`w-full font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                        isItemInCart(selectedRecipe.title)
+                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                          : 'bg-emerald-800 hover:bg-emerald-900 text-white'
+                      }`}
+                    >
+                      {isItemInCart(selectedRecipe.title) ? (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Added to Week</span>
+                        </>
+                      ) : (
+                        <>
+                          <PlusIcon />
+                          <span>Add to My Week</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -400,6 +420,9 @@ export default function RecipesPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Cart Button */}
+      <CartButton />
     </div>
   );
 }

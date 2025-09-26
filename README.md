@@ -1,36 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a grocery ingredient aggregation service created by @Echen1246. 
 
-## Getting Started
 
-First, run the development server:
+I built this after noticing a pattern of my purchased produce going bad. At the time of shopping, I'd think I'd need this ingredient down the line for some dish I hadn't planned, or an addition to something else. These plans usually don't pan out, and our onions, leafy greens, even potatoes would go bad after a period of time. Let's change that.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You can select from a list of default recipes. Sort by protein groups or search up your favorite dish. New recipes will be added weekly according to user demand. Recipes will be shown in carts, with the option to download or send yourself an aggregate list of ingredients to use at the grocer. 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Planned:
+The future of online shopping is agentic. Why not have AI agents do price comparisons with our shopping list, and find the best location to buy our ingredients? 

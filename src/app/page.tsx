@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CartButton from '@/components/CartButton';
 
 // Heroicons - premium minimalist icons
 const BookOpenIcon = () => (
@@ -218,6 +219,9 @@ export default function Home() {
           </p>
         </div>
       </footer>
+
+      {/* Floating Cart Button */}
+      <CartButton />
     </div>
   );
 }
