@@ -373,7 +373,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
 
         {/* Action Buttons */}
         <div className="border-t border-slate-200 p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button 
               onClick={handleCopyToClipboard}
               className={`flex items-center justify-center space-x-2 font-medium py-3 px-4 rounded-lg transition-all duration-200 ${
@@ -394,7 +394,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
                   </svg>
-                  <span>Copy</span>
+                  <span>Copy Ingredients</span>
                 </>
               )}
             </button>
@@ -404,7 +404,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
               className="flex items-center justify-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-3 px-4 rounded-lg transition-colors"
             >
               <EmailIcon />
-              <span>Email</span>
+              <span>Email Ingredients</span>
             </button>
             
             <button 
@@ -412,15 +412,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
               className="flex items-center justify-center space-x-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium py-3 px-4 rounded-lg transition-colors"
             >
               <PhoneIcon />
-              <span>Text</span>
-            </button>
-
-            <button 
-              onClick={handlePrint}
-              className="flex items-center justify-center space-x-2 bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-            >
-              <PrinterIcon />
-              <span>Print</span>
+              <span>Text Ingredients</span>
             </button>
           </div>
         </div>

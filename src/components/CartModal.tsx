@@ -42,6 +42,7 @@ const ShoppingBagIcon = () => (
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const { cartItems, removeFromCart } = useCart();
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  const [copyInstructionsSuccess, setCopyInstructionsSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -78,6 +79,60 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }));
   };
 
+  const generateInstructionsText = () => {
+    let text = "🍳 RECIPE INSTRUCTIONS\n\n";
+    
+    cartItems.forEach((recipe, index) => {
+      text += `${index + 1}. ${recipe.title.toUpperCase()}\n`;
+      text += `⏱️ Prep: ${recipe.prep_time} min | Cook: ${recipe.cook_time} min | Serves: ${recipe.servings}\n\n`;
+      
+      const instructions = Array.isArray(recipe.instructions) 
+        ? recipe.instructions 
+        : (recipe.instructions as string).split('|');
+        
+      instructions.forEach((instruction, stepIndex) => {
+        text += `   Step ${stepIndex + 1}: ${instruction.trim()}\n`;
+      });
+      text += "\n";
+    });
+    
+    return text + "👨‍🍳 Happy cooking from Grocero!";
+  };
+
+  const handleCopyInstructions = async () => {
+    try {
+      await navigator.clipboard.writeText(generateInstructionsText());
+      setCopyInstructionsSuccess(true);
+      setTimeout(() => setCopyInstructionsSuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy instructions:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = generateInstructionsText();
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopyInstructionsSuccess(true);
+      setTimeout(() => setCopyInstructionsSuccess(false), 2000);
+    }
+  };
+
+  const handleEmailInstructions = () => {
+    const subject = encodeURIComponent('🍳 My Recipe Instructions from Grocero');
+    const body = encodeURIComponent(generateInstructionsText());
+    const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
+    window.open(mailtoUrl, '_blank');
+  };
+
+  const handleSMSInstructions = () => {
+    const text = encodeURIComponent(generateInstructionsText());
+    const smsUrl = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) 
+      ? `sms:?&body=${text}`
+      : `sms:?body=${text}`;
+    window.open(smsUrl, '_blank');
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -111,14 +166,35 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {cartItems.map((recipe, index) => (
                   <div key={index} className="bg-slate-50 rounded-xl p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-slate-900 leading-snug">{recipe.title}</h3>
-                      <button
-                        onClick={() => removeFromCart(recipe.title)}
-                        className="p-1 hover:bg-slate-200 rounded transition-colors text-slate-500 hover:text-red-600"
-                      >
-                        <TrashIcon />
-                      </button>
+                    <div className="flex items-start space-x-3 mb-3">
+                      <div className="w-16 h-16 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {recipe.image_url ? (
+                          <img 
+                            src={recipe.image_url} 
+                            alt={recipe.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                            <div className="text-slate-400">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-slate-900 leading-snug">{recipe.title}</h3>
+                          <button
+                            onClick={() => removeFromCart(recipe.title)}
+                            className="p-1 hover:bg-slate-200 rounded transition-colors text-slate-500 hover:text-red-600 ml-2"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     
                     <p className="text-slate-600 text-sm mb-3 line-clamp-2">{recipe.description}</p>
@@ -150,7 +226,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         </div>
 
         {cartItems.length > 0 && (
-          <div className="border-t border-slate-200 p-6">
+          <div className="border-t border-slate-200 p-6 space-y-4">
             <button 
               onClick={() => setIsShoppingListOpen(true)}
               className="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
@@ -158,6 +234,57 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               <ShoppingBagIcon />
               <span>Generate Shopping List ({generateShoppingList().length} ingredients)</span>
             </button>
+
+            {/* Instructions Sharing */}
+            <div>
+              <h4 className="text-sm font-medium text-slate-700 mb-3">Share Recipe Instructions:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button 
+                  onClick={handleCopyInstructions}
+                  className={`flex items-center justify-center space-x-2 font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm ${
+                    copyInstructionsSuccess 
+                      ? 'bg-green-100 text-green-700 border-green-200'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {copyInstructionsSuccess ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                      </svg>
+                      <span>Copy Instructions</span>
+                    </>
+                  )}
+                </button>
+                
+                <button 
+                  onClick={handleEmailInstructions}
+                  className="flex items-center justify-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                  </svg>
+                  <span>Email Instructions</span>
+                </button>
+                
+                <button 
+                  onClick={handleSMSInstructions}
+                  className="flex items-center justify-center space-x-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096c1.071-.136 2.16-.216 3.28-.216 1.12 0 2.209.08 3.28.216m-6.56 0a9.06 9.06 0 00-.67 1.514c-.57 1.757-.456 3.858.67 5.056A3.015 3.015 0 008.84 21h6.32c1.045 0 1.987-.55 2.56-1.414 1.126-1.698 1.24-3.799.67-5.056a9.06 9.06 0 00-.67-1.514m-6.56 0V12a3 3 0 116 0v1.829" />
+                  </svg>
+                  <span>Text Instructions</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

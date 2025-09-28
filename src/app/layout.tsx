@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Grocero - Smart Meal Planning & Grocery Lists",
   description: "Plan your meals, select recipes, and get consolidated grocery lists. Never forget ingredients or waste food again.",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
