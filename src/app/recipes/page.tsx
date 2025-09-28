@@ -56,6 +56,18 @@ export default function RecipesPage() {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Check if there's a selected recipe from homepage
+    const selectedRecipeData = sessionStorage.getItem('selectedRecipe');
+    if (selectedRecipeData) {
+      try {
+        const recipe = JSON.parse(selectedRecipeData);
+        setSelectedRecipe(recipe);
+        sessionStorage.removeItem('selectedRecipe'); // Clean up
+      } catch (error) {
+        console.error('Error parsing selected recipe:', error);
+      }
+    }
   }, []);
   
   // Get filtered recipes

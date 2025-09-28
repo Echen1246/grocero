@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import CartButton from '@/components/CartButton';
+import { useRecipes, type Recipe } from '@/hooks/useRecipes';
 
 // Heroicons - premium minimalist icons
 const BookOpenIcon = () => (
@@ -37,13 +39,27 @@ const ClockIcon = () => (
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [featuredRecipes, setFeaturedRecipes] = useState<Recipe[]>([]);
+  const router = useRouter();
+  const { recipes, loading } = useRecipes();
 
-  const sampleRecipes = [
-    { title: "Honey Garlic Chicken", time: "25", protein: "Chicken", difficulty: "Medium" },
-    { title: "Black Bean Tacos", time: "35", protein: "Vegetarian", difficulty: "Easy" },
-    { title: "Lemon Herb Salmon", time: "20", protein: "Fish", difficulty: "Easy" },
-    { title: "Classic Beef Lasagna", time: "90", protein: "Beef", difficulty: "Medium" }
-  ];
+  // Get 4 random featured recipes when recipes load
+  useEffect(() => {
+    if (recipes.length > 0) {
+      const shuffled = [...recipes].sort(() => 0.5 - Math.random());
+      setFeaturedRecipes(shuffled.slice(0, 4));
+    }
+  }, [recipes]);
+
+  const getTotalTime = (prep: number, cook: number) => {
+    return (prep || 0) + (cook || 0);
+  };
+
+  const handleRecipeClick = (recipe: Recipe) => {
+    // Store the selected recipe in sessionStorage to open modal on recipes page
+    sessionStorage.setItem('selectedRecipe', JSON.stringify(recipe));
+    router.push('/recipes');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -171,26 +187,61 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {sampleRecipes.map((recipe, index) => (
-              <div key={index} className="bg-slate-50 rounded-xl p-6 hover:bg-slate-100 transition-colors duration-200 cursor-pointer group">
-                <div className="h-40 bg-slate-200 rounded-lg mb-4 group-hover:bg-slate-300 transition-colors duration-200"></div>
-                <h4 className="font-semibold text-slate-900 mb-3 leading-snug">{recipe.title}</h4>
-                
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <div className="flex items-center space-x-1">
-                    <ClockIcon />
-                    <span>{recipe.time} min</span>
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-slate-50 rounded-xl p-6 animate-pulse">
+                  <div className="h-40 bg-slate-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-slate-200 rounded mb-3"></div>
+                  <div className="h-3 bg-slate-200 rounded w-3/4"></div>
+                </div>
+              ))
+            ) : (
+              featuredRecipes.map((recipe, index) => (
+                <div 
+                  key={recipe.id || index} 
+                  onClick={() => handleRecipeClick(recipe)}
+                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group border border-slate-200/60"
+                >
+                  <div className="h-40 bg-slate-100 rounded-lg mb-4 overflow-hidden">
+                    {recipe.image_url ? (
+                      <img 
+                        src={recipe.image_url} 
+                        alt={recipe.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 group-hover:bg-slate-200 transition-colors duration-200 flex items-center justify-center">
+                        <div className="text-slate-400">
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
-                    {recipe.protein}
-                  </span>
+                  
+                  <h4 className="font-semibold text-slate-900 mb-3 leading-snug group-hover:text-emerald-800 transition-colors">
+                    {recipe.title}
+                  </h4>
+                  
+                  <div className="flex items-center justify-between text-sm text-slate-600 mb-3">
+                    <div className="flex items-center space-x-1">
+                      <ClockIcon />
+                      <span>{getTotalTime(recipe.prep_time, recipe.cook_time)} min</span>
+                    </div>
+                    <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
+                      {recipe.protein_type}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>{recipe.difficulty}</span>
+                    <span>{recipe.servings} servings</span>
+                  </div>
                 </div>
-                
-                <div className="mt-3 text-xs text-slate-500">
-                  {recipe.difficulty}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="text-center mt-12">
