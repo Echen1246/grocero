@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import CartButton from '@/components/CartButton';
@@ -49,9 +49,14 @@ export default function RecipesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProtein, setSelectedProtein] = useState('All');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [mounted, setMounted] = useState(false);
   
   const { addToCart, isItemInCart } = useCart();
   const { loading, error, filterRecipes } = useRecipes();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Get filtered recipes
   const filteredRecipes = filterRecipes(searchTerm, selectedProtein);
@@ -61,6 +66,12 @@ export default function RecipesPage() {
   const getTotalTime = (prep: number, cook: number) => {
     return (prep || 0) + (cook || 0);
   };
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-slate-600">Loading...</div>
+    </div>;
+  }
 
   if (loading) {
     return (

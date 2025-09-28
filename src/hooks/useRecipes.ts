@@ -29,6 +29,12 @@ export const useRecipes = () => {
         setLoading(true);
         setError(null);
 
+        // Check if Firebase is initialized
+        if (!db) {
+          setError('Firebase not initialized');
+          return;
+        }
+
         // Query curated recipes
         const recipesQuery = query(
           collection(db, 'curated_recipes'),
