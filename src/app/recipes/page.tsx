@@ -127,7 +127,7 @@ export default function RecipesPage() {
             <div className="flex items-center space-x-3">
               <Link href="/" className="flex items-center space-x-3 hover:opacity-75 transition-opacity">
                 <div className="w-8 h-8 bg-emerald-800 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm tracking-tight">G</span>
+                  <span className="text-white text-lg">🍱</span>
                 </div>
                 <span className="text-xl font-semibold text-slate-900 tracking-tight">Grocero</span>
               </Link>

@@ -139,7 +139,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-200">
@@ -152,7 +152,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
+        <div className="flex-1 overflow-y-auto">
           {cartItems.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -226,7 +226,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         </div>
 
         {cartItems.length > 0 && (
-          <div className="border-t border-slate-200 p-6 space-y-4">
+          <div className="border-t border-slate-200 p-6 space-y-4 bg-white">
             <button 
               onClick={() => setIsShoppingListOpen(true)}
               className="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
@@ -279,7 +279,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   className="flex items-center justify-center space-x-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096c1.071-.136 2.16-.216 3.28-.216 1.12 0 2.209.08 3.28.216m-6.56 0a9.06 9.06 0 00-.67 1.514c-.57 1.757-.456 3.858.67 5.056A3.015 3.015 0 008.84 21h6.32c1.045 0 1.987-.55 2.56-1.414 1.126-1.698 1.24-3.799.67-5.056a9.06 9.06 0 00-.67-1.514m-6.56 0V12a3 3 0 116 0v1.829" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                   </svg>
                   <span>Text Instructions</span>
                 </button>
