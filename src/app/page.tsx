@@ -77,14 +77,16 @@ export default function Home() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
+              <a 
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfUIPxnfZfPOzLToHeR5HS9eZU45vISrFnA-onkpMVl7MOZCg/viewform?usp=dialog" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors duration-200"
+              >
+                Submit New Recipe
+              </a>
               <Link href="/recipes" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors duration-200">
                 Recipes
-              </Link>
-              <Link href="/my-list" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors duration-200">
-                My List
-              </Link>
-              <Link href="/grocery-list" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors duration-200">
-                Grocery List
               </Link>
             </div>
 
@@ -103,14 +105,16 @@ export default function Home() {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-slate-200/60">
               <div className="flex flex-col space-y-3">
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSfUIPxnfZfPOzLToHeR5HS9eZU45vISrFnA-onkpMVl7MOZCg/viewform?usp=dialog" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors py-2"
+                >
+                  Submit New Recipe
+                </a>
                 <Link href="/recipes" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors py-2">
                   Recipes
-                </Link>
-                <Link href="/my-list" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors py-2">
-                  My List
-                </Link>
-                <Link href="/grocery-list" className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors py-2">
-                  Grocery List
                 </Link>
               </div>
             </div>
