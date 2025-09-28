@@ -51,7 +51,7 @@ export default function RecipesPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   
   const { addToCart, isItemInCart } = useCart();
-  const { recipes, loading, error, filterRecipes } = useRecipes();
+  const { loading, error, filterRecipes } = useRecipes();
   
   // Get filtered recipes
   const filteredRecipes = filterRecipes(searchTerm, selectedProtein);

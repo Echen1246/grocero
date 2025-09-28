@@ -100,7 +100,6 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
   // Parse ingredient to extract quantity, unit, and base ingredient
   const parseIngredient = (ingredient: string): { quantity: string; unit: string; baseIngredient: string } => {
     const trimmed = ingredient.trim();
-    const parts = trimmed.split(' ');
     
     // Try to extract quantity (first part if it's a number or fraction)
     const quantityPattern = /^(\d+(?:\/\d+)?|\d*\.?\d+)/;
@@ -133,7 +132,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
     cartItems.forEach(recipe => {
       const ingredients = Array.isArray(recipe.ingredients) 
         ? recipe.ingredients 
-        : recipe.ingredients.split('|'); // Handle both array and string formats
+        : (recipe.ingredients as string).split('|'); // Handle both array and string formats
       
       ingredients.forEach(ingredient => {
         const parsed = parseIngredient(ingredient);

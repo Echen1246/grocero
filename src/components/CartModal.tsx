@@ -57,7 +57,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     cartItems.forEach(recipe => {
       const ingredients = Array.isArray(recipe.ingredients) 
         ? recipe.ingredients 
-        : recipe.ingredients.split('|'); // Handle both array and string formats
+        : (recipe.ingredients as string).split('|'); // Handle both array and string formats
         
       ingredients.forEach(ingredient => {
         const trimmed = ingredient.trim();
