@@ -45,9 +45,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
   if (!isOpen) return null;
 
-  const getTotalTime = (prep: string, cook: string) => {
-    const prepNum = parseInt(prep.replace(/\D/g, '')) || 0;
-    const cookNum = parseInt(cook.replace(/\D/g, '')) || 0;
+  const getTotalTime = (prep: number | string, cook: number | string) => {
+    const prepNum = typeof prep === 'number' ? prep : parseInt(prep.replace(/\D/g, '')) || 0;
+    const cookNum = typeof cook === 'number' ? cook : parseInt(cook.replace(/\D/g, '')) || 0;
     return prepNum + cookNum;
   };
 
@@ -55,7 +55,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     const ingredientMap = new Map<string, { count: number; recipes: string[] }>();
     
     cartItems.forEach(recipe => {
-      const ingredients = recipe.ingredients.split('|');
+      const ingredients = Array.isArray(recipe.ingredients) 
+        ? recipe.ingredients 
+        : recipe.ingredients.split('|'); // Handle both array and string formats
+        
       ingredients.forEach(ingredient => {
         const trimmed = ingredient.trim();
         if (ingredientMap.has(trimmed)) {

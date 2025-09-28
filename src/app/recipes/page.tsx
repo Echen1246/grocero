@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import CartButton from '@/components/CartButton';
-import type { Recipe } from '@/contexts/CartContext';
+import { useRecipes, type Recipe } from '@/hooks/useRecipes';
 
 // Recipe type is imported from CartContext
 
@@ -46,108 +46,20 @@ const PlusIcon = () => (
 );
 
 export default function RecipesPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProtein, setSelectedProtein] = useState('All');
-  const [loading, setLoading] = useState(true);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   
   const { addToCart, isItemInCart } = useCart();
+  const { recipes, loading, error, filterRecipes } = useRecipes();
+  
+  // Get filtered recipes
+  const filteredRecipes = filterRecipes(searchTerm, selectedProtein);
 
   const proteinTypes = ['All', 'Chicken', 'Beef', 'Pork', 'Fish', 'Vegetarian', 'Vegan'];
 
-  // Proper CSV parser that handles quoted fields with commas
-  const parseCSVLine = (line: string): string[] => {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    
-    if (current) {
-      result.push(current.trim());
-    }
-    
-    return result;
-  };
-
-  useEffect(() => {
-    // Load recipes from CSV
-    const loadRecipes = async () => {
-      try {
-        const response = await fetch('/recipes.csv');
-        const csvText = await response.text();
-        const lines = csvText.split('\n');
-        
-        const parsedRecipes: Recipe[] = [];
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i];
-          if (line.trim()) {
-            const values = parseCSVLine(line);
-            if (values.length >= 10) {
-              parsedRecipes.push({
-                title: values[0] || '',
-                description: values[1] || '',
-                prep_time: values[2] || '',
-                cook_time: values[3] || '',
-                servings: parseInt(values[4]) || 4,
-                difficulty: values[5] || 'Medium',
-                protein_type: values[6] || '',
-                ingredients: values[7] || '',
-                instructions: values[8] || '',
-                tags: values[9] || '',
-              });
-            }
-          }
-        }
-        console.log('Parsed recipes sample:', parsedRecipes.slice(0, 3));
-        setRecipes(parsedRecipes);
-        setFilteredRecipes(parsedRecipes);
-      } catch (error) {
-        console.error('Error loading recipes:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRecipes();
-  }, []);
-
-  useEffect(() => {
-    // Filter recipes based on search and protein type
-    let filtered = recipes;
-
-    if (searchTerm) {
-      filtered = filtered.filter(recipe =>
-        recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        recipe.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        recipe.tags.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedProtein !== 'All') {
-      filtered = filtered.filter(recipe => recipe.protein_type === selectedProtein);
-    }
-
-    setFilteredRecipes(filtered);
-  }, [searchTerm, selectedProtein, recipes]);
-
-  const getTotalTime = (prep: string, cook: string) => {
-    const prepNum = parseInt(prep.replace(/\D/g, '')) || 0;
-    const cookNum = parseInt(cook.replace(/\D/g, '')) || 0;
-    return prepNum + cookNum;
+  const getTotalTime = (prep: number, cook: number) => {
+    return (prep || 0) + (cook || 0);
   };
 
   if (loading) {
@@ -158,6 +70,26 @@ export default function RecipesPage() {
             <span className="text-white font-semibold text-sm">G</span>
           </div>
           <p className="text-slate-600">Loading recipes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-red-600 text-2xl">⚠️</span>
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Error Loading Recipes</h3>
+          <p className="text-slate-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-emerald-800 hover:bg-emerald-900 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -253,7 +185,23 @@ export default function RecipesPage() {
                 onClick={() => setSelectedRecipe(recipe)}
                 className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group border border-slate-200/60"
               >
-                <div className="h-40 bg-slate-100 rounded-lg mb-4 group-hover:bg-slate-200 transition-colors duration-200"></div>
+                <div className="h-40 bg-slate-100 rounded-lg mb-4 overflow-hidden">
+                  {recipe.image_url ? (
+                    <img 
+                      src={recipe.image_url} 
+                      alt={recipe.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 group-hover:bg-slate-200 transition-colors duration-200 flex items-center justify-center">
+                      <div className="text-slate-400">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 
                 <h3 className="font-semibold text-slate-900 mb-2 leading-snug group-hover:text-emerald-800 transition-colors">
                   {recipe.title}
@@ -322,7 +270,23 @@ export default function RecipesPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
                 {/* Recipe Image & Info */}
                 <div>
-                  <div className="h-64 bg-slate-100 rounded-xl mb-6"></div>
+                  <div className="h-64 bg-slate-100 rounded-xl mb-6 overflow-hidden">
+                    {selectedRecipe.image_url ? (
+                      <img 
+                        src={selectedRecipe.image_url} 
+                        alt={selectedRecipe.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                        <div className="text-slate-400">
+                          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="space-y-4">
                     <p className="text-slate-600 leading-relaxed">{selectedRecipe.description}</p>
@@ -391,10 +355,10 @@ export default function RecipesPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-4">Ingredients</h3>
                     <div className="space-y-2">
-                      {selectedRecipe.ingredients.split('|').map((ingredient, index) => (
+                      {selectedRecipe.ingredients.map((ingredient, index) => (
                         <div key={index} className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-emerald-800 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-slate-700 leading-relaxed">{ingredient.trim()}</span>
+                          <span className="text-slate-700 leading-relaxed">{ingredient}</span>
                         </div>
                       ))}
                     </div>
@@ -404,12 +368,12 @@ export default function RecipesPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-4">Instructions</h3>
                     <div className="space-y-4">
-                      {selectedRecipe.instructions.split('|').map((instruction, index) => (
+                      {selectedRecipe.instructions.map((instruction, index) => (
                         <div key={index} className="flex items-start space-x-4">
                           <div className="w-6 h-6 bg-emerald-800 text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">
                             {index + 1}
                           </div>
-                          <p className="text-slate-700 leading-relaxed">{instruction.trim()}</p>
+                          <p className="text-slate-700 leading-relaxed">{instruction}</p>
                         </div>
                       ))}
                     </div>

@@ -3,16 +3,19 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface Recipe {
+  id?: string;
   title: string;
   description: string;
-  prep_time: string;
-  cook_time: string;
+  prep_time: number;
+  cook_time: number;
   servings: number;
   difficulty: string;
   protein_type: string;
-  ingredients: string;
-  instructions: string;
-  tags: string;
+  ingredients: string[];
+  instructions: string[];
+  tags: string[];
+  image_url?: string | null;
+  created_at?: Date;
 }
 
 interface CartContextType {

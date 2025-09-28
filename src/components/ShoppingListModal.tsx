@@ -131,7 +131,10 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
     const ingredientMap = new Map<string, ProcessedIngredient>();
     
     cartItems.forEach(recipe => {
-      const ingredients = recipe.ingredients.split('|');
+      const ingredients = Array.isArray(recipe.ingredients) 
+        ? recipe.ingredients 
+        : recipe.ingredients.split('|'); // Handle both array and string formats
+      
       ingredients.forEach(ingredient => {
         const parsed = parseIngredient(ingredient);
         const category = categorizeIngredient(parsed.baseIngredient);

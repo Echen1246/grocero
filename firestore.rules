@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions for security
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidRecipe() {
+      return request.resource.data.keys().hasAll(['title', 'description', 'ingredients']) &&
+             request.resource.data.title is string &&
+             request.resource.data.title.size() > 0 &&
+             request.resource.data.ingredients is list;
+    }
+    
+    // Curated recipes - read by everyone, write by admin only
+    match /curated_recipes/{recipeId} {
+      allow read: if true;
+      allow write: if false; // Only server-side admin SDK can write
+    }
+    
+    // User recipes - private to each user
+    match /user_recipes/{recipeId} {
+      allow read, write: if isAuthenticated() && 
+                          resource.data.user_id == request.auth.uid &&
+                          isValidRecipe();
+      allow create: if isAuthenticated() && 
+                    request.resource.data.user_id == request.auth.uid &&
+                    isValidRecipe();
+    }
+    
+    // User carts - private to each user
+    match /user_carts/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // Shopping lists - private to each user
+    match /shopping_lists/{userId}/{listId} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // User profiles - private to each user
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isAuthenticated() && 
+                    request.auth.uid == userId &&
+                    request.resource.data.keys().hasAll(['email', 'created_at']);
+    }
+  }
+}
