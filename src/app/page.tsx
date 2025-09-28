@@ -146,8 +146,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <BookOpenIcon />
+              <div className="w-12 h-12 bg-emerald-800 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <div className="text-white">
+                  <BookOpenIcon />
+                </div>
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-3">Curated Recipes</h3>
               <p className="text-slate-600 leading-relaxed">
@@ -156,8 +158,10 @@ export default function Home() {
             </div>
 
             <div className="text-center">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <CheckIcon />
+              <div className="w-12 h-12 bg-emerald-800 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <div className="text-white">
+                  <CheckIcon />
+                </div>
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-3">Weekly Selection</h3>
               <p className="text-slate-600 leading-relaxed">
@@ -166,8 +170,10 @@ export default function Home() {
             </div>
 
             <div className="text-center">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <ListIcon />
+              <div className="w-12 h-12 bg-emerald-800 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <div className="text-white">
+                  <ListIcon />
+                </div>
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-3">Smart Lists</h3>
               <p className="text-slate-600 leading-relaxed">
