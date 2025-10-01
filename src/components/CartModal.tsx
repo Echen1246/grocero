@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import ShoppingListModal from './ShoppingListModal';
+import { trackCopyInstructions, trackEmailInstructions, trackTextInstructions, trackGenerateShoppingList } from '@/lib/analytics';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -100,6 +101,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   };
 
   const handleCopyInstructions = async () => {
+    trackCopyInstructions(); // Track the event
     try {
       await navigator.clipboard.writeText(generateInstructionsText());
       setCopyInstructionsSuccess(true);
@@ -119,6 +121,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   };
 
   const handleEmailInstructions = () => {
+    trackEmailInstructions(); // Track the event
     const subject = encodeURIComponent('🍳 My Recipe Instructions from Grocero');
     const body = encodeURIComponent(generateInstructionsText());
     const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
@@ -126,6 +129,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   };
 
   const handleSMSInstructions = () => {
+    trackTextInstructions(); // Track the event
     const text = encodeURIComponent(generateInstructionsText());
     const smsUrl = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) 
       ? `sms:?&body=${text}`
@@ -228,7 +232,11 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         {cartItems.length > 0 && (
           <div className="border-t border-slate-200 p-6 space-y-4 bg-white">
             <button 
-              onClick={() => setIsShoppingListOpen(true)}
+              onClick={() => {
+                const shoppingList = generateShoppingList();
+                trackGenerateShoppingList(cartItems.length, shoppingList.length);
+                setIsShoppingListOpen(true);
+              }}
               className="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               <ShoppingBagIcon />

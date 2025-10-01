@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { trackSubmitRecipeClick, trackRecipeView } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 import CartButton from '@/components/CartButton';
 import { useRecipes, type Recipe } from '@/hooks/useRecipes';
@@ -56,6 +57,8 @@ export default function Home() {
   };
 
   const handleRecipeClick = (recipe: Recipe) => {
+    // Track featured recipe click
+    trackRecipeView(recipe.title, recipe.protein_type);
     // Store the selected recipe in sessionStorage to open modal on recipes page
     sessionStorage.setItem('selectedRecipe', JSON.stringify(recipe));
     router.push('/recipes');
@@ -79,8 +82,9 @@ export default function Home() {
             <div className="hidden md:flex items-center space-x-8">
               <a 
                 href="https://docs.google.com/forms/d/e/1FAIpQLSfUIPxnfZfPOzLToHeR5HS9eZU45vISrFnA-onkpMVl7MOZCg/viewform?usp=dialog" 
-                target="_blank" 
-                rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
+                onClick={() => trackSubmitRecipeClick()}
                 className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors duration-200"
               >
                 Submit New Recipe
@@ -107,8 +111,9 @@ export default function Home() {
               <div className="flex flex-col space-y-3">
                 <a 
                   href="https://docs.google.com/forms/d/e/1FAIpQLSfUIPxnfZfPOzLToHeR5HS9eZU45vISrFnA-onkpMVl7MOZCg/viewform?usp=dialog" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
+                  onClick={() => trackSubmitRecipeClick()}
                   className="text-sm font-medium text-slate-700 hover:text-emerald-800 transition-colors py-2"
                 >
                   Submit New Recipe

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import CartModal from './CartModal';
+import { trackCartOpen } from '@/lib/analytics';
 
 const CartIcon = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +30,10 @@ export default function CartButton() {
   return (
     <>
       <button 
-        onClick={() => setIsCartOpen(true)}
+        onClick={() => {
+          trackCartOpen(cartCount);
+          setIsCartOpen(true);
+        }}
         className="fixed bottom-6 right-6 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 z-40 group"
       >
         <div className="flex items-center space-x-3">

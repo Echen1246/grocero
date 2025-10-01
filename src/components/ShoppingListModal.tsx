@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { trackCopyIngredients, trackEmailIngredients, trackTextIngredients } from '@/lib/analytics';
 
 interface ShoppingListModalProps {
   isOpen: boolean;
@@ -212,6 +213,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
   };
 
   const handleCopyToClipboard = async () => {
+    trackCopyIngredients(); // Track the event
     try {
       await navigator.clipboard.writeText(generateTextList());
       setCopySuccess(true);
@@ -231,6 +233,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
   };
 
   const handleEmailShare = () => {
+    trackEmailIngredients(); // Track the event
     const subject = encodeURIComponent('🛒 My Grocery List from Grocero');
     const body = encodeURIComponent(generateTextList());
     const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
@@ -238,6 +241,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
   };
 
   const handleSMSShare = () => {
+    trackTextIngredients(); // Track the event
     const text = encodeURIComponent(generateTextList());
     // iOS and Android support different SMS URL formats
     const smsUrl = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) 

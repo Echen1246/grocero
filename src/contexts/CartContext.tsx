@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { trackAddToCart, trackRemoveFromCart } from '@/lib/analytics';
 
 export interface Recipe {
   id?: string;
@@ -54,11 +55,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (prev.some(item => item.title === recipe.title)) {
         return prev; // Don't add duplicates
       }
+      // Track the add to cart event
+      trackAddToCart(recipe.title, recipe.protein_type);
       return [...prev, recipe];
     });
   };
 
   const removeFromCart = (recipeTitle: string) => {
+    // Track the remove from cart event
+    trackRemoveFromCart(recipeTitle);
     setCartItems(prev => prev.filter(item => item.title !== recipeTitle));
   };
 

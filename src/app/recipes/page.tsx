@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import CartButton from '@/components/CartButton';
 import { useRecipes, type Recipe } from '@/hooks/useRecipes';
+import { trackRecipeView, trackRecipeSearch, trackProteinFilter } from '@/lib/analytics';
 
 // Recipe type is imported from CartContext
 
@@ -50,9 +51,42 @@ export default function RecipesPage() {
   const [selectedProtein, setSelectedProtein] = useState('All');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null);
   
   const { addToCart, isItemInCart } = useCart();
   const { loading, error, filterRecipes } = useRecipes();
+
+  // Handle search with debounce and tracking
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    
+    // Clear previous timeout
+    if (searchDebounce) {
+      clearTimeout(searchDebounce);
+    }
+    
+    // Set new timeout for tracking (only track after user stops typing for 500ms)
+    if (value.length >= 2) {
+      const timeout = setTimeout(() => {
+        trackRecipeSearch(value);
+      }, 500);
+      setSearchDebounce(timeout);
+    }
+  };
+
+  // Handle protein filter with tracking
+  const handleProteinFilter = (protein: string) => {
+    setSelectedProtein(protein);
+    if (protein !== 'All') {
+      trackProteinFilter(protein);
+    }
+  };
+
+  // Handle recipe view with tracking
+  const handleRecipeView = (recipe: Recipe) => {
+    trackRecipeView(recipe.title, recipe.protein_type);
+    setSelectedRecipe(recipe);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -161,7 +195,7 @@ export default function RecipesPage() {
                 type="text"
                 placeholder="Search recipes..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-transparent outline-none transition-all"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -174,7 +208,7 @@ export default function RecipesPage() {
               {proteinTypes.map((protein) => (
                 <button
                   key={protein}
-                  onClick={() => setSelectedProtein(protein)}
+                  onClick={() => handleProteinFilter(protein)}
                   className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${
                     selectedProtein === protein
                       ? 'bg-emerald-800 text-white'
@@ -205,7 +239,7 @@ export default function RecipesPage() {
             {filteredRecipes.map((recipe, index) => (
               <div 
                 key={index} 
-                onClick={() => setSelectedRecipe(recipe)}
+                onClick={() => handleRecipeView(recipe)}
                 className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group border border-slate-200/60"
               >
                 <div className="h-40 bg-slate-100 rounded-lg mb-4 overflow-hidden">
